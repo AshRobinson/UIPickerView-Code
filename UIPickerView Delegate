@@ -1,0 +1,54 @@
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow: (NSInteger)row inComponent:(NSInteger)component {
+
+    // Handle the selection
+    NSArray *alphabet = @[@"A",@"B",@"C",@"D",@"E",@"F",@"G",@"H",@"I",@"J",@"K",@"L",@"M",@"N",@"O",@"P",@"Q",@"R",@"S",@"T",@"U",@"V",@"W",@"Y"];
+    
+    [self setActivationLabelText:@"Pull to activate alarm"];
+    
+    NSUInteger letterRow;
+    
+    if (component == 0) {
+        NSString *letterChosen = alphabet[row];
+        
+        //get the index in the array whereby the first letter of the name key is the letterChosen
+        letterRow = [self.trainStations indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+            
+            Station *station = (Station *)obj;
+            return [[station.name substringToIndex:1] isEqualToString:letterChosen];
+            
+        }];
+        if (letterRow != NSNotFound) {
+            
+            [self.picker selectRow:letterRow inComponent:1 animated:YES];
+            
+        }
+        
+    } else if (component == 1) {
+        
+        Station *stationChosen = [self.trainStations objectAtIndex:row];
+        
+        NSString *chosenStationFirstLetter = [stationChosen.name substringToIndex:1];
+        
+        NSUInteger letterRow = [alphabet indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+            return [chosenStationFirstLetter isEqualToString:obj];
+        }];
+        
+        if (letterRow !=NSNotFound){
+            
+            [self.picker selectRow:letterRow inComponent:0 animated:YES];
+        }
+    }
+    
+    [pickerView reloadAllComponents];
+    
+    if (component == 0) {
+        if (letterRow != NSNotFound) {
+            self.sharedLocationManager.destinationStation = self.trainStations[letterRow];
+        } else {
+            self.sharedLocationManager.destinationStation = self.trainStations[0];
+        }
+    } else if (component == 1) {
+        self.sharedLocationManager.destinationStation = self.trainStations[row];
+    }
+
+}
